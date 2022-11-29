@@ -16,7 +16,11 @@ def setUpDatabase(db_name):
 # TASK 1
 # CREATE TABLE FOR EMPLOYEE INFORMATION IN DATABASE AND ADD INFORMATION
 def create_employee_table(cur, conn):
-    pass
+    cur.execute("DROP TABLE IF EXISTS Employees")
+    #DO NOT DO THE ABOVE LINE IN FINAL PROJECT, IT DELETES EVERYTHING
+    cur.execute("CREATE TABLE employees (employee_id INTEGER PRIMARY KEY, first_name TEXT, last_name TEXT, job_id INTEGER,\
+         hire_date INTEGER, salary INTEGER)") 
+    conn.commit()
 
 # ADD EMPLOYEE'S INFORMTION TO THE TABLE
 
@@ -27,16 +31,33 @@ def add_employee(filename, cur, conn):
     file_data = f.read()
     f.close()
     # THE REST IS UP TO YOU
-    pass
+    json_data = json.loads(file_data)
+    for i in range(len(json_data)):
+        cur.execute("INSERT INTO employees (employee_id, first_name, last_name, job_id, hire_date, salary) \
+            VALUES (?,?,?,?,?,?)",(json_data[i]["employee_id"], json_data[i]["first_name"], json_data[i]["last_name"], \
+                json_data[i]["job_id"], json_data[i]["hire_date"], json_data[i]["salary"]))
+    conn.commit()
 
 # TASK 2: GET JOB AND HIRE_DATE INFORMATION
 def job_and_hire_date(cur, conn):
-    pass
+    cur.execute("SELECT employees.hire_date, jobs.job_title FROM employees INNER JOIN jobs ON jobs.job_id = employees.job_id")
+    result = cur.fetchall()
+    #cur.fetchall gives everything from the select as a list
+    s = sorted(result, key= lambda x: x[0])
+    return s[0][1]
 
 # TASK 3: IDENTIFY PROBLEMATIC SALARY DATA
 # Apply JOIN clause to match individual employees
 def problematic_salary(cur, conn):
-    pass
+    output = []
+    cur.execute('''SELECT employees.first_name, employees.last_name
+                   FROM employees
+                   INNER JOIN jobs
+                   ON jobs.job_id = employees.job_id
+                   WHERE jobs.min_salary > employees.salary OR jobs.max_salary < employees.salary''')
+    result = cur.fetchall()
+    print(result)
+    return result
 
 # TASK 4: VISUALIZATION
 def visualization_salary_data(cur, conn):
