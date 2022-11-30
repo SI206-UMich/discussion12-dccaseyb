@@ -56,12 +56,22 @@ def problematic_salary(cur, conn):
                    ON jobs.job_id = employees.job_id
                    WHERE jobs.min_salary > employees.salary OR jobs.max_salary < employees.salary''')
     result = cur.fetchall()
-    print(result)
     return result
 
 # TASK 4: VISUALIZATION
 def visualization_salary_data(cur, conn):
-    pass
+    cur.execute('''SELECT jobs.job_title, employees.salary
+                   FROM jobs
+                   JOIN employees
+                   ON jobs.job_id = employees.job_id''')
+    result = cur.fetchall()
+    titles = []
+    salaries = []
+    for item in result:
+        titles.append(item[0])
+        salaries.append(item[1])
+    plt.scatter(titles, salaries)
+    plt.show()
 
 class TestDiscussion12(unittest.TestCase):
     def setUp(self) -> None:
@@ -96,6 +106,8 @@ def main():
 
     wrong_salary = (problematic_salary(cur, conn))
     print(wrong_salary)
+
+    visualization_salary_data(cur, conn)
 
 if __name__ == "__main__":
     main()
